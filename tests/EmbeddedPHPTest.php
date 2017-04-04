@@ -69,4 +69,12 @@ class EmbeddedPhpTest extends TestCase
         $this->assertEquals('Hello !', ob_get_clean());
     }
 
+    public function testStatement()
+    {
+        $ephp = new EmbeddedPHP(new StringLoader);
+
+        ob_start();
+        $ephp->render('Hello <% echo "World"; %>!');
+        $this->assertEquals('Hello World!', ob_get_clean());
+    }
 }

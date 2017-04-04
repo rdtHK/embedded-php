@@ -71,11 +71,16 @@ class EmbeddedPHP
                 }
 
                 if ($code[$pos + 2] === '=') {
+                    // expression
                     $start = $pos + 3; // after the <%=
                     // text between expressions
                     $php .= $this->compileExpression(substr($code, $start, $end - $start));
                 } elseif ($code[$pos + 2] === '#') {
                     // comments are ignored
+                } else {
+                    // statement
+                    $start = $pos + 2; // after the <%
+                    $php .= $this->compileStatement(substr($code, $start, $end - $start));
                 }
             }
         }
@@ -91,5 +96,10 @@ class EmbeddedPHP
     private function compileExpression(string $code)
     {
         return "<?=SafeString::print($code)?>";
+    }
+
+    private function compileStatement(string $code)
+    {
+        return "<?php $code ?>";
     }
 }
