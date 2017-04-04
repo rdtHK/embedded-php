@@ -76,7 +76,6 @@ class EmbeddedPHP
                 if ($code[$pos + 2] === '=') {
                     // expression
                     $start = $pos + 3; // after the <%=
-                    // text between expressions
                     $php .= $this->compileExpression(substr($code, $start, $end - $start));
                 } elseif ($code[$pos + 2] === '#') {
                     // comments are ignored
