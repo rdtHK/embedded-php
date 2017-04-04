@@ -86,4 +86,13 @@ class EmbeddedPhpTest extends TestCase
         $ephp->render('Hello <%=$x%>!', ['x' => 'World']);
         $this->assertEquals('Hello World!', ob_get_clean());
     }
+
+    public function testInclude()
+    {
+        $ephp = new EmbeddedPHP(new StringLoader);
+
+        ob_start();
+        $ephp->render('Hello <% $ephp->render("World") %>!', ['x' => 'World']);
+        $this->assertEquals('Hello World!', ob_get_clean());
+    }
 }

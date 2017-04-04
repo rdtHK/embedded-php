@@ -43,7 +43,9 @@ class EmbeddedPHP
             eval($__CODE__);
         };
 
-        call_user_func($scope, $php, $parameters);
+        $p = array_merge($parameters, ['ephp' => $this]);
+
+        call_user_func($scope, $php, $p);
     }
 
     private function compile(string $code)
