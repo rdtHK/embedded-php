@@ -21,6 +21,7 @@ declare(strict_types=1);
 namespace Rdthk\EmbeddedPHP;
 
 use Rdthk\EmbeddedPHP\Loaders\Loader;
+use function Rdthk\EmbeddedPHP\safe;
 
 class EmbeddedPHP
 {
@@ -47,7 +48,10 @@ class EmbeddedPHP
     private function compile(string $raw)
     {
         $offset = 0;
-        $code = '?>';
+        $code = '';
+        $code .= 'use Rdthk\EmbeddedPHP\SafeString;';
+        $code .= 'use function Rdthk\\EmbeddedPHP\\safe;';
+        $code .= '?>';
 
         while (true) {
             $pos = strpos($raw, '<%=', $offset);
@@ -82,6 +86,6 @@ class EmbeddedPHP
 
     private function compileExpression(string $raw)
     {
-        return "<?=htmlspecialchars($raw) ?>";
+        return "<?=SafeString::print($raw)?>";
     }
 }

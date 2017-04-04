@@ -51,4 +51,13 @@ class EmbeddedPhpTest extends TestCase
         $this->assertEquals('Hello &lt;b&gt;World&lt;/b&gt;!', ob_get_clean());
     }
 
+    public function testExpressionHtmlSafe()
+    {
+        $ephp = new EmbeddedPHP(new StringLoader);
+
+        ob_start();
+        $ephp->render('Hello <%=safe("<b>World</b>")%>!');
+        $this->assertEquals('Hello <b>World</b>!', ob_get_clean());
+    }
+
 }
