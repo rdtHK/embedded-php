@@ -54,25 +54,29 @@ class EmbeddedPHP
         $code .= '?>';
 
         while (true) {
-            $pos = strpos($raw, '<%=', $offset);
+            $pos = strpos($raw, '<%', $offset);
 
             if ($pos === false) {
                 // after all <% %>s there's only text
                 $code .= $this->compileString(substr($raw, $offset));
                 break;
             } else {
-                // text between expressions
                 $code .= $this->compileString(substr($raw, $offset, $pos - $offset));
 
-                $start = $pos + 3; // after the <%=
-                $end = strpos($raw, '%>', $start);
+                $end = strpos($raw, '%>', $pos);
+                $offset = $end + 2; // after the %>
 
                 if ($end === false) {
                     throw new \Exception; // TODO: Better exception + error message
                 }
 
-                $code .= $this->compileExpression(substr($raw, $start, $end - $start));
-                $offset = $end + 2; // after the %>
+                if ($raw[$pos + 2] === '=') {
+                    $start = $pos + 3; // after the <%=
+                    // text between expressions
+                    $code .= $this->compileExpression(substr($raw, $start, $end - $start));
+                } elseif ($raw[$pos + 2] === '#') {
+                    // comments are ignored
+                }
             }
         }
 
