@@ -1,0 +1,21 @@
+{
+    "name": "rdthk/embedded-php",
+    "description": "Small template engine.",
+    "type": "library",
+    "require-dev": {
+        "phpunit/phpunit": "^6.0"
+    },
+    "authors": [
+        {
+            "name": "rdtHK",
+            "email": "mariop.36754@gmail.com"
+        }
+    ],
+    "require": {},
+    "autoload": {
+        "psr-4": {
+            "Rdthk\\EmbeddedPHP\\": "src/",
+            "Rdthk\\EmbeddedPHP\\Tests\\": "tests/"
+        }
+    }
+}
