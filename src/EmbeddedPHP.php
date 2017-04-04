@@ -34,62 +34,62 @@ class EmbeddedPHP
 
     public function render(string $template)
     {
-        $raw = $this->loader->load($template);
+        $code = $this->loader->load($template);
 
-        $code = $this->compile($raw);
+        $php = $this->compile($code);
 
         $scope = function ($__CODE__) {
             eval($__CODE__);
         };
 
-        call_user_func($scope, $code);
+        call_user_func($scope, $php);
     }
 
-    private function compile(string $raw)
+    private function compile(string $code)
     {
         $offset = 0;
-        $code = '';
-        $code .= 'use Rdthk\EmbeddedPHP\SafeString;';
-        $code .= 'use function Rdthk\\EmbeddedPHP\\safe;';
-        $code .= '?>';
+        $php = '';
+        $php .= 'use Rdthk\EmbeddedPHP\SafeString;';
+        $php .= 'use function Rdthk\\EmbeddedPHP\\safe;';
+        $php .= '?>';
 
         while (true) {
-            $pos = strpos($raw, '<%', $offset);
+            $pos = strpos($code, '<%', $offset);
 
             if ($pos === false) {
                 // after all <% %>s there's only text
-                $code .= $this->compileString(substr($raw, $offset));
+                $php .= $this->compileString(substr($code, $offset));
                 break;
             } else {
-                $code .= $this->compileString(substr($raw, $offset, $pos - $offset));
+                $php .= $this->compileString(substr($code, $offset, $pos - $offset));
 
-                $end = strpos($raw, '%>', $pos);
+                $end = strpos($code, '%>', $pos);
                 $offset = $end + 2; // after the %>
 
                 if ($end === false) {
                     throw new \Exception; // TODO: Better exception + error message
                 }
 
-                if ($raw[$pos + 2] === '=') {
+                if ($code[$pos + 2] === '=') {
                     $start = $pos + 3; // after the <%=
                     // text between expressions
-                    $code .= $this->compileExpression(substr($raw, $start, $end - $start));
-                } elseif ($raw[$pos + 2] === '#') {
+                    $php .= $this->compileExpression(substr($code, $start, $end - $start));
+                } elseif ($code[$pos + 2] === '#') {
                     // comments are ignored
                 }
             }
         }
 
+        return $php;
+    }
+
+    private function compileString(string $code)
+    {
         return $code;
     }
 
-    private function compileString(string $raw)
+    private function compileExpression(string $code)
     {
-        return $raw;
-    }
-
-    private function compileExpression(string $raw)
-    {
-        return "<?=SafeString::print($raw)?>";
+        return "<?=SafeString::print($code)?>";
     }
 }
