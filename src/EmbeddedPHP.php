@@ -32,17 +32,18 @@ class EmbeddedPHP
         $this->loader = $loader;
     }
 
-    public function render(string $template)
+    public function render(string $template, array $parameters=[])
     {
         $code = $this->loader->load($template);
 
         $php = $this->compile($code);
 
-        $scope = function ($__CODE__) {
+        $scope = function ($__CODE__, $__PARAMS__) {
+            extract($__PARAMS__);
             eval($__CODE__);
         };
 
-        call_user_func($scope, $php);
+        call_user_func($scope, $php, $parameters);
     }
 
     private function compile(string $code)
