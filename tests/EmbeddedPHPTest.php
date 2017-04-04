@@ -42,4 +42,13 @@ class EmbeddedPhpTest extends TestCase
         $this->assertEquals('Hello World!', ob_get_clean());
     }
 
+    public function testExpressionHtmlEscaping()
+    {
+        $ephp = new EmbeddedPHP(new StringLoader);
+
+        ob_start();
+        $ephp->render('Hello <%="<b>World</b>"%>!');
+        $this->assertEquals('Hello &lt;b&gt;World&lt;/b&gt;!', ob_get_clean());
+    }
+
 }

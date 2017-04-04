@@ -82,6 +82,6 @@ class EmbeddedPHP
 
     private function compileExpression(string $raw)
     {
-        return "<?=$raw ?>";
+        return "<?=htmlspecialchars($raw) ?>";
     }
 }
