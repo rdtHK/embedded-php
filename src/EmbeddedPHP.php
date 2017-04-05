@@ -64,6 +64,9 @@ class EmbeddedPHP
     private function compile(string $code)
     {
         $offset = 0;
+        $code = str_replace('<?', '&lt;&#63;', $code);
+        $code = str_replace('?>', '&#63;&gt;', $code);
+
         $php = '';
         $php .= 'use Rdthk\EmbeddedPHP\SafeString;';
         $php .= 'use function Rdthk\EmbeddedPHP\safe;';

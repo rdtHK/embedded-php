@@ -7,11 +7,20 @@
 - [ ] Cache
     - [ ] InMemoryCache
     - [ ] FilesystemCache
-- [ ] Escape <? & ?>
+- [x] Escape <? & ?>
 - [ ] Do something about %> inside strings
 - [ ] A way of extending templates
 
     '''
+    function layout($code)
+    {
+        $php = 'return function () {';
+        $php = $this->compile($code);
+        $php = '}';
+        return eval($php)();
+    }
+
+
     foreach (layout($globals) as $content) {
         $c = $content??'content';
         call_user_func($scope, $php, array_merge($p, ['__CONTENT_BLOCK__' => $c]);
