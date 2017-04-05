@@ -28,18 +28,21 @@ class EmbeddedPHP
 {
     private $loader;
     private $globals;
+    private $layout;
 
     public function __construct(Loader $loader)
     {
         $this->loader = $loader;
         $this->globals = ['ephp' => $this];
+        $this->layout = null;
     }
 
     public function render(string $template, array $parameters=[])
     {
         $code = $this->loader->load($template);
 
-        $php = $this->compile($code);
+        $php  = $this->useStatements();
+        $php .= $this->compile($code);
 
         $scope = function ($__CODE__, $__PARAMS__) {
             extract($__PARAMS__);
@@ -48,7 +51,16 @@ class EmbeddedPHP
 
         $p = array_merge($parameters, $this->globals);
 
-        call_user_func($scope, $php, $p);
+        if ($this->layout === null) {
+            call_user_func($scope, $php, $p);
+        } else {
+            $layout = eval($this->compileLayout($this->layout));
+
+            foreach ($layout() as $block) {
+                $GLOBALS['__EPHP_CONTENT_BLOCK__'] = $block ?? 'content';
+                call_user_func($scope, $php, $p);
+            }
+        }
     }
 
     public function setGlobal(string $name, $value)
@@ -61,12 +73,20 @@ class EmbeddedPHP
         return $this->globals[$name];
     }
 
+    public function setLayout(?string $layout)
+    {
+        $this->layout = $layout;
+    }
+
+    public function getLayout()
+    {
+        return $this->layout;
+    }
+
     private function compile(string $code)
     {
         $offset = 0;
-
-        $php = 'use Rdthk\\EmbeddedPHP\\SafeString;';
-        $php .= 'use function Rdthk\\EmbeddedPHP\\safe;';
+        $php = '';
 
         while (true) {
             $pos = strpos($code, '<%', $offset);
@@ -120,5 +140,22 @@ class EmbeddedPHP
     private function compileStatement(string $code)
     {
         return "$code;";
+    }
+
+    private function useStatements()
+    {
+        $php  = 'use Rdthk\\EmbeddedPHP\\SafeString;';
+        $php .= 'use function Rdthk\\EmbeddedPHP\\safe;';
+        $php .= 'use function Rdthk\\EmbeddedPHP\\content;';
+        return $php;
+    }
+
+    private function compileLayout(string $code)
+    {
+        $php  = $this->useStatements();
+        $php .= 'return function () {';
+        $php .= $this->compile($code);
+        $php .= '};';
+        return $php;
     }
 }

@@ -144,4 +144,22 @@ class EmbeddedPhpTest extends TestCase
         $ephp->render('<%# Hello');
     }
 
+    public function testLayout()
+    {
+        $ephp = new EmbeddedPHP(new StringLoader);
+        $ephp->setLayout('Hello <% yield; %>!');
+        ob_start();
+        $ephp->render('World');
+        $this->assertEquals('Hello World!', ob_get_clean());
+    }
+
+    public function testLayoutNamedContentBlocks()
+    {
+        $ephp = new EmbeddedPHP(new StringLoader);
+        $ephp->setLayout('Hello <% (yield "foo") %>!');
+        ob_start();
+        $ephp->render('<% if (content("foo")) { %>World<% } %>');
+        $this->assertEquals('Hello World!', ob_get_clean());
+    }
+
 }
