@@ -19,8 +19,11 @@ declare(strict_types=1);
  */
 use Rdthk\EmbeddedPHP\EmbeddedPHP;
 use Rdthk\EmbeddedPHP\Loaders\StringLoader;
+use Rdthk\EmbeddedPHP\Cache\Cache;
+use Rdthk\EmbeddedPHP\Cache\InMemoryCache;
 use Rdthk\EmbeddedPHP\Exceptions\SyntaxException;
 
+use Prophecy\Argument;
 use PHPUnit\Framework\TestCase;
 
 class EmbeddedPhpTest extends TestCase
@@ -177,6 +180,26 @@ class EmbeddedPhpTest extends TestCase
         $ephp->setLayout('Hello <% yield %>!');
         ob_start();
         $ephp->render('<% if (content()) { %>World<% } %>');
+        $this->assertEquals('Hello World!', ob_get_clean());
+    }
+
+    public function testCacheStore()
+    {
+        $cache = new InMemoryCache;
+        ob_start();
+        $ephp = new EmbeddedPHP(new StringLoader, $cache);
+        $ephp->render('foo');
+        ob_end_clean();
+        $this->assertTrue($cache->exists('foo'));
+    }
+
+    public function testCacheLoad()
+    {
+        $cache = new InMemoryCache;
+        $cache->store('foo', 'echo "Hello World!";');
+        ob_start();
+        $ephp = new EmbeddedPHP(new StringLoader, $cache);
+        $ephp->render('foo');
         $this->assertEquals('Hello World!', ob_get_clean());
     }
 

@@ -21,46 +21,74 @@ declare(strict_types=1);
 namespace Rdthk\EmbeddedPHP;
 
 use Rdthk\EmbeddedPHP\Loaders\Loader;
+use Rdthk\EmbeddedPHP\Cache\Cache;
 use Rdthk\EmbeddedPHP\Exceptions\SyntaxException;
 use function Rdthk\EmbeddedPHP\safe;
 
 class EmbeddedPHP
 {
     private $loader;
+    private $cache;
     private $globals;
     private $layout;
 
-    public function __construct(Loader $loader)
+    public function __construct(Loader $loader, ?Cache $cache=null)
     {
         $this->loader = $loader;
+        $this->cache = $cache;
         $this->globals = ['ephp' => $this];
         $this->layout = null;
     }
 
     public function render(string $template, array $parameters=[])
     {
-        $code = $this->loader->load($template);
-
-        $php  = $this->useStatements();
-        $php .= $this->compile($code);
-
+        $php = $this->loadTemplate($template);
         $scope = function ($__CODE__, $__PARAMS__) {
             extract($__PARAMS__);
             eval($__CODE__);
         };
-
-        $p = array_merge($parameters, $this->globals);
+        $params = array_merge($parameters, $this->globals);
 
         if ($this->layout === null) {
-            call_user_func($scope, $php, $p);
+            call_user_func($scope, $php, $params);
         } else {
-            $layout = eval($this->compileLayout($this->layout));
+            $layout = eval($this->loadLayout($this->layout));
 
             foreach ($layout() as $block) {
                 $GLOBALS['__EPHP_CONTENT_BLOCK__'] = $block ?? 'content';
-                call_user_func($scope, $php, $p);
+                call_user_func($scope, $php, $params);
             }
         }
+    }
+
+    private function loadTemplate(string $name)
+    {
+        if ($this->cache && $this->cache->exists($name)) {
+            $code = $this->cache->load($name);
+        } else {
+            $code = $this->compileTemplate($name);
+
+            if ($this->cache) {
+                $this->cache->store($name, $code);
+            }
+        }
+
+        return $code;
+    }
+
+    private function loadLayout(string $name)
+    {
+        if ($this->cache && $this->cache->exists($name)) {
+            $code = $this->cache->load($name);
+        } else {
+            $code = $this->compileLayout($name);
+
+            if ($this->cache) {
+                $this->cache->store($name, $code);
+            }
+        }
+
+        return $code;
     }
 
     public function setGlobal(string $name, $value)
@@ -147,6 +175,13 @@ class EmbeddedPHP
         $php  = 'use Rdthk\\EmbeddedPHP\\SafeString;';
         $php .= 'use function Rdthk\\EmbeddedPHP\\safe;';
         $php .= 'use function Rdthk\\EmbeddedPHP\\content;';
+        return $php;
+    }
+
+    private function compileTemplate(string $code)
+    {
+        $php  = $this->useStatements();
+        $php .= $this->compile($code);
         return $php;
     }
 
