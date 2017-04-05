@@ -95,4 +95,14 @@ class EmbeddedPhpTest extends TestCase
         $ephp->render('Hello <% $ephp->render("World") %>!', ['x' => 'World']);
         $this->assertEquals('Hello World!', ob_get_clean());
     }
+
+    public function testGlobals()
+    {
+        $ephp = new EmbeddedPHP(new StringLoader);
+        $ephp->setGlobal('x', 'World');
+
+        ob_start();
+        $ephp->render('Hello <%=$x %>!');
+        $this->assertEquals('Hello World!', ob_get_clean());
+    }
 }

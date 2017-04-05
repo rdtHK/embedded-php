@@ -5,14 +5,13 @@
 - [ ] Cache
     - [ ] InMemoryCache
     - [ ] FilesystemCache
-- [ ] Other loaders (+ tests)
-    - [ ] File loader (list of directories to load from)
+- [x] Other loaders (+ tests)
+    - [x] File loader (list of directories to load from)
 - [ ] Catch errors
     - [ ] + Better exceptions
 - [ ] Escape <?php & ?>
 - [ ] Do something about %> inside strings
-- [ ] Global parameters
-    - [ ] EmbeddedPHP->param($name, $value);
+- [x] Global parameters
 - [x] A way of including templates (add an ephp variable?)
 - [ ] A way of extending templates
     foreach (layout($globals) as $content) {

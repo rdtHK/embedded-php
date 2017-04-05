@@ -26,10 +26,12 @@ use function Rdthk\EmbeddedPHP\safe;
 class EmbeddedPHP
 {
     private $loader;
+    private $globals;
 
     public function __construct(Loader $loader)
     {
         $this->loader = $loader;
+        $this->globals = ['ephp' => $this];
     }
 
     public function render(string $template, array $parameters=[])
@@ -43,9 +45,19 @@ class EmbeddedPHP
             eval($__CODE__);
         };
 
-        $p = array_merge($parameters, ['ephp' => $this]);
+        $p = array_merge($parameters, $this->globals);
 
         call_user_func($scope, $php, $p);
+    }
+
+    public function setGlobal(string $name, $value)
+    {
+        $this->globals[$name] = $value;
+    }
+
+    public function getGlobal(string $name)
+    {
+        return $this->globals[$name];
     }
 
     private function compile(string $code)
