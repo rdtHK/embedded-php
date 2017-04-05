@@ -66,7 +66,7 @@ class EmbeddedPHP
         $offset = 0;
         $php = '';
         $php .= 'use Rdthk\EmbeddedPHP\SafeString;';
-        $php .= 'use function Rdthk\\EmbeddedPHP\\safe;';
+        $php .= 'use function Rdthk\EmbeddedPHP\safe;';
         $php .= '?>';
 
         while (true) {
@@ -77,6 +77,7 @@ class EmbeddedPHP
                 $php .= $this->compileString(substr($code, $offset));
                 break;
             } else {
+                // grabbing the bit of text between <% %>s
                 $php .= $this->compileString(substr($code, $offset, $pos - $offset));
 
                 $end = strpos($code, '%>', $pos);
