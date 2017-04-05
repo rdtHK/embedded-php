@@ -27,7 +27,7 @@ function safe($str)
     return new SafeString($str);
 }
 
-function content($name)
+function content(string $name='content')
 {
     return strcasecmp($name, $GLOBALS['__EPHP_CONTENT_BLOCK__']) == 0;
 }

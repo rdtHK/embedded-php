@@ -147,7 +147,7 @@ class EmbeddedPhpTest extends TestCase
     public function testLayout()
     {
         $ephp = new EmbeddedPHP(new StringLoader);
-        $ephp->setLayout('Hello <% yield; %>!');
+        $ephp->setLayout('Hello <% yield %>!');
         ob_start();
         $ephp->render('World');
         $this->assertEquals('Hello World!', ob_get_clean());
@@ -156,9 +156,27 @@ class EmbeddedPhpTest extends TestCase
     public function testLayoutNamedContentBlocks()
     {
         $ephp = new EmbeddedPHP(new StringLoader);
-        $ephp->setLayout('Hello <% (yield "foo") %>!');
+        $ephp->setLayout('Hello <% yield "foo" %>!');
         ob_start();
         $ephp->render('<% if (content("foo")) { %>World<% } %>');
+        $this->assertEquals('Hello World!', ob_get_clean());
+    }
+
+    public function testLayoutUnnamedContentBlocks()
+    {
+        $ephp = new EmbeddedPHP(new StringLoader);
+        $ephp->setLayout('Hello <% yield %>!');
+        ob_start();
+        $ephp->render('<% if (content("content")) { %>World<% } %>');
+        $this->assertEquals('Hello World!', ob_get_clean());
+    }
+
+    public function testLayoutContentIsTheDefault()
+    {
+        $ephp = new EmbeddedPHP(new StringLoader);
+        $ephp->setLayout('Hello <% yield %>!');
+        ob_start();
+        $ephp->render('<% if (content()) { %>World<% } %>');
         $this->assertEquals('Hello World!', ob_get_clean());
     }
 
