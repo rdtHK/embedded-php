@@ -64,13 +64,9 @@ class EmbeddedPHP
     private function compile(string $code)
     {
         $offset = 0;
-        $code = str_replace('<?', '&lt;&#63;', $code);
-        $code = str_replace('?>', '&#63;&gt;', $code);
 
-        $php = '';
-        $php .= 'use Rdthk\EmbeddedPHP\SafeString;';
-        $php .= 'use function Rdthk\EmbeddedPHP\safe;';
-        $php .= '?>';
+        $php = 'use Rdthk\\EmbeddedPHP\\SafeString;';
+        $php .= 'use function Rdthk\\EmbeddedPHP\\safe;';
 
         while (true) {
             $pos = strpos($code, '<%', $offset);
@@ -111,16 +107,18 @@ class EmbeddedPHP
 
     private function compileString(string $code)
     {
-        return $code;
+        $str = str_replace('\\', '\\\\', $code);
+        $str = str_replace('\'', '\\\'', $str);
+        return "echo '$str';";
     }
 
     private function compileExpression(string $code)
     {
-        return "<?=SafeString::print($code)?>";
+        return "SafeString::print($code);";
     }
 
     private function compileStatement(string $code)
     {
-        return "<?php $code ?>";
+        return "$code;";
     }
 }

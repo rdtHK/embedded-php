@@ -8,6 +8,8 @@
     - [ ] InMemoryCache
     - [ ] FilesystemCache
 - [x] Escape <? & ?>
+    - [x] Turn ?> <?php into echo statements. That way there's no need to escape
+    anything.
 - [ ] Do something about %> inside strings
 - [ ] A way of extending templates
 

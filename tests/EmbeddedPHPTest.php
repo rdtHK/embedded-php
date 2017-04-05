@@ -107,20 +107,20 @@ class EmbeddedPhpTest extends TestCase
         $this->assertEquals('Hello World!', ob_get_clean());
     }
 
-    public function testPhpTagsAreEscaped()
+    public function testPhpTagsArePrinted()
     {
         $ephp = new EmbeddedPHP(new StringLoader);
         ob_start();
         $ephp->render('<?php ?>');
-        $this->assertEquals('&lt;&#63;php &#63;&gt;', ob_get_clean());
+        $this->assertEquals('<?php ?>', ob_get_clean());
     }
 
-    public function testPhpShortTagsAreEscaped()
+    public function testPhpShortTagsArePrinted()
     {
         $ephp = new EmbeddedPHP(new StringLoader);
         ob_start();
         $ephp->render('<? ?>');
-        $this->assertEquals('&lt;&#63; &#63;&gt;', ob_get_clean());
+        $this->assertEquals('<? ?>', ob_get_clean());
     }
 
     public function testMissingCloseExpression()
