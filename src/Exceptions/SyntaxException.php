@@ -20,6 +20,6 @@ declare(strict_types=1);
 
 namespace Rdthk\EmbeddedPHP\Exceptions;
 
-class MissingTemplateException extends EmbeddedPHPException
+class SyntaxException extends EmbeddedPHPException
 {
 }

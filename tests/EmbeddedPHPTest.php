@@ -19,6 +19,7 @@ declare(strict_types=1);
  */
 use Rdthk\EmbeddedPHP\EmbeddedPHP;
 use Rdthk\EmbeddedPHP\Loaders\StringLoader;
+use Rdthk\EmbeddedPHP\Exceptions\SyntaxException;
 
 use PHPUnit\Framework\TestCase;
 
@@ -105,4 +106,26 @@ class EmbeddedPhpTest extends TestCase
         $ephp->render('Hello <%=$x %>!');
         $this->assertEquals('Hello World!', ob_get_clean());
     }
+
+    public function testMissingCloseExpression()
+    {
+        $ephp = new EmbeddedPHP(new StringLoader);
+        $this->expectException(SyntaxException::class);
+        $ephp->render('<%="Hello"');
+    }
+
+    public function testMissingCloseStatement()
+    {
+        $ephp = new EmbeddedPHP(new StringLoader);
+        $this->expectException(SyntaxException::class);
+        $ephp->render('<% echo "Hello"');
+    }
+
+    public function testMissingCloseComment()
+    {
+        $ephp = new EmbeddedPHP(new StringLoader);
+        $this->expectException(SyntaxException::class);
+        $ephp->render('<%# Hello');
+    }
+
 }

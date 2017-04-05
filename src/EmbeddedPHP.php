@@ -21,6 +21,7 @@ declare(strict_types=1);
 namespace Rdthk\EmbeddedPHP;
 
 use Rdthk\EmbeddedPHP\Loaders\Loader;
+use Rdthk\EmbeddedPHP\Exceptions\SyntaxException;
 use function Rdthk\EmbeddedPHP\safe;
 
 class EmbeddedPHP
@@ -82,7 +83,9 @@ class EmbeddedPHP
                 $offset = $end + 2; // after the %>
 
                 if ($end === false) {
-                    throw new \Exception; // TODO: Better exception + error message
+                    throw new SyntaxException(
+                        "Missing %> at: " . substr($code, $pos, 20) . "...'"
+                    );
                 }
 
                 if ($code[$pos + 2] === '=') {
