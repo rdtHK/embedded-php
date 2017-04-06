@@ -20,6 +20,8 @@ declare(strict_types=1);
 
 namespace Rdthk\EmbeddedPHP\Cache;
 
+use Rdthk\EmbeddedPHP\Exceptions\MissingPermissionException;
+
 class FilesystemCache implements Cache
 {
     private $path;
@@ -27,6 +29,18 @@ class FilesystemCache implements Cache
     public function __construct(string $path)
     {
         $this->path = $path;
+
+        if (!is_writable($path)) {
+            throw new MissingPermissionException(
+                "Cannot write to '$path'"
+            );
+        }
+
+        if (!is_readable($path)) {
+            throw new MissingPermissionException(
+                "Cannot read from '$path'"
+            );
+        }
     }
 
     public function exists(string $template): bool

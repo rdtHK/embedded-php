@@ -18,6 +18,7 @@ declare(strict_types=1);
  * limitations under the License.
  */
 use Rdthk\EmbeddedPHP\Cache\FilesystemCache;
+use Rdthk\EmbeddedPHP\Exceptions\MissingPermissionException;
 
 use org\bovigo\vfs\vfsStream;
 use PHPUnit\Framework\TestCase;
@@ -44,6 +45,20 @@ class FilesystemCacheTest extends TestCase
         vfsStream::setup('root', null, ['foo' => 'bar']);
         $cache = new FilesystemCache(vfsStream::url('root'));
         $this->assertEquals('bar', $cache->load('foo'));
+    }
+
+    public function testNoWritePermissions()
+    {
+        vfsStream::setup('root', 0444); // -r--r--r--
+        $this->expectException(MissingPermissionException::class);
+        $cache = new FilesystemCache(vfsStream::url('root'));
+    }
+
+    public function testNoReadPermission()
+    {
+        vfsStream::setup('root', 0222); // --w--w--w-
+        $this->expectException(MissingPermissionException::class);
+        $cache = new FilesystemCache(vfsStream::url('root'));
     }
 
 }
