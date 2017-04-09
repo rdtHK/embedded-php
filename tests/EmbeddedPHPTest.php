@@ -183,6 +183,16 @@ class EmbeddedPhpTest extends TestCase
         $this->assertEquals('Hello World!', ob_get_clean());
     }
 
+    public function testLayoutHasAccessToGlobalScope()
+    {
+        $ephp = new EmbeddedPHP(new StringLoader);
+        $ephp->setGlobal('foo', 'World');
+        $ephp->setLayout('<% yield %> <%= $foo %>!');
+        ob_start();
+        $ephp->render('Hello');
+        $this->assertEquals('Hello World!', ob_get_clean());
+    }
+
     public function testCacheStore()
     {
         $cache = new InMemoryCache;

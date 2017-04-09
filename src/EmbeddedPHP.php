@@ -53,8 +53,9 @@ class EmbeddedPHP
             call_user_func($scope, $php, $params);
         } else {
             $layout = eval($this->loadLayout($this->layout));
+            $layout = call_user_func($layout, $this->globals);
 
-            foreach ($layout() as $block) {
+            foreach ($layout as $block) {
                 $GLOBALS['__EPHP_CONTENT_BLOCK__'] = $block ?? 'content';
                 call_user_func($scope, $php, $params);
             }
@@ -188,7 +189,8 @@ class EmbeddedPHP
     private function compileLayout(string $code)
     {
         $php  = $this->useStatements();
-        $php .= 'return function () {';
+        $php .= 'return function ($__PARAMS__) {';
+        $php .= 'extract($__PARAMS__);';
         $php .= $this->compile($code);
         $php .= '};';
         return $php;
