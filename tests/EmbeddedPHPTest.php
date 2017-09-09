@@ -22,9 +22,11 @@ use Rdthk\EmbeddedPHP\Loaders\StringLoader;
 use Rdthk\EmbeddedPHP\Cache\Cache;
 use Rdthk\EmbeddedPHP\Cache\InMemoryCache;
 use Rdthk\EmbeddedPHP\Exceptions\SyntaxException;
+use Rdthk\EmbeddedPHP\Loaders\FileLoader;
 
 use Prophecy\Argument;
 use PHPUnit\Framework\TestCase;
+use org\bovigo\vfs\vfsStream;
 
 class EmbeddedPhpTest extends TestCase
 {
@@ -209,6 +211,15 @@ class EmbeddedPhpTest extends TestCase
         $cache->store('foo', 'echo "Hello World!";');
         ob_start();
         $ephp = new EmbeddedPHP(new StringLoader, $cache);
+        $ephp->render('foo');
+        $this->assertEquals('Hello World!', ob_get_clean());
+    }
+
+    public function testLoadFile()
+    {
+        vfsStream::setup('root', null, ['foo.ephp' => 'Hello <%="World"%>!']);
+        $ephp = new EmbeddedPHP(new FileLoader(vfsStream::url('root')));
+        ob_start();
         $ephp->render('foo');
         $this->assertEquals('Hello World!', ob_get_clean());
     }

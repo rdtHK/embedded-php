@@ -67,7 +67,7 @@ class EmbeddedPHP
         if ($this->cache && $this->cache->exists($name)) {
             $code = $this->cache->load($name);
         } else {
-            $code = $this->compileTemplate($name);
+            $code = $this->compileTemplate($this->loader->load($name));
 
             if ($this->cache) {
                 $this->cache->store($name, $code);
